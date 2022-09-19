@@ -1,0 +1,35 @@
+services:
+  backend-dev:
+    build: backend
+    command: ./wait-for.sh db:5432 -- npm run dev
+    depends_on:
+    - db
+    environment:
+      DATABASE_URL: postgres://demo:demo@db/demo
+      FRONTEND: http://localhost:8000
+      NODE_ENV: development
+    links:
+    - db
+    ports:
+    - 9000:9000
+    - 9229:9229
+    volumes:
+    - ./backend/src:/usr/src/app/src
+  db:
+    build: db
+    environment:
+      POSTGRES_DB: demo
+      POSTGRES_PASSWORD: demo
+      POSTGRES_USER: demo
+    ports:
+    - 5432:5432
+  frontend-dev:
+    build: frontend
+    environment:
+      ENDPOINT: http://localhost:9000/api
+      NODE_ENV: development
+    ports:
+    - 80:8000
+    volumes:
+    - ./frontend/src:/usr/src/app/src
+version: '3.9'
